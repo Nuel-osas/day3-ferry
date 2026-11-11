@@ -8,7 +8,9 @@
     "build": "tsc --noEmit -p tsconfig.json && vite build",
     "preview": "vite preview",
     "verify": "tsx scripts/verify-mainnet.ts",
-    "e2e": "tsx scripts/e2e.ts"
+    "e2e": "tsx scripts/e2e.ts",
+    "slides": "node teaching/generate-slides.cjs",
+    "slides:pdf": "tsx teaching/render.ts"
   },
   "engines": {
     "node": ">=22"
@@ -27,6 +29,7 @@
     "@types/react": "18",
     "@types/react-dom": "18",
     "@vitejs/plugin-react": "^4.7.0",
+    "pptxgenjs": "4.0.1",
     "puppeteer-core": "^25.13.0",
     "tsx": "4.23.15",
     "typescript": "5.9.3",
