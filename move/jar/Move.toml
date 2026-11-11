@@ -1,0 +1,6 @@
+[package]
+name = "jar"
+edition = "2024"
+
+[addresses]
+jar = "0x0"
