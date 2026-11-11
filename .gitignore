@@ -1,0 +1,12 @@
+node_modules
+dist
+.vercel
+.env
+.env.*
+!.env.example
+*.key
+.probe
+scripts/.out
+scripts/.e2e.json
+scripts/.shots
+move/**/build

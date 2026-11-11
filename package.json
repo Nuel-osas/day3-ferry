@@ -1,0 +1,35 @@
+{
+  "name": "day3-ferry",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "preview": "vite preview",
+    "verify": "tsx scripts/verify-mainnet.ts",
+    "e2e": "tsx scripts/e2e.ts"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@mysten/hashi": "0.6.29",
+    "@mysten/sui": "2.39.0",
+    "@mysten/wallet-standard": "0.21.36",
+    "qrcode": "1.5.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "22",
+    "@types/qrcode": "1.5.5",
+    "@types/react": "18",
+    "@types/react-dom": "18",
+    "@vitejs/plugin-react": "^4.7.0",
+    "puppeteer-core": "^25.13.0",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "vite": "6"
+  }
+}
