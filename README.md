@@ -17,6 +17,11 @@ Live: https://day3-ferry.vercel.app
 
 There is no server. Everything is read and built in the browser: Sui over gRPC-web and GraphQL, Bitcoin over Esplora, the guardian over its public `/info`.
 
+Also in this repo:
+
+- [`move/jar`](move/jar/README.md): Part 4 of the class, a Move object with its own Bitcoin address. Hashi mints hBTC into the object's address balance, and the jar releases it to its cap holder after a time lock. Run on Sui testnet on 11 November.
+- [`teaching/`](teaching/README.md): the 13-slide deck (pptx and pdf) and the speaker notes.
+
 ## How a deposit works
 
 ```
@@ -86,6 +91,8 @@ pnpm dev                  # http://localhost:5294
 pnpm build                # typecheck, then production build
 pnpm verify               # mainnet checks, no money moves
 pnpm e2e                  # browser checks against localhost; APP_URL=https://day3-ferry.vercel.app pnpm e2e for the live site
+pnpm slides               # rebuild the deck and speaker notes
+(cd move/jar && sui move test)
 ```
 
 ## Gotchas
@@ -113,3 +120,5 @@ pnpm e2e                  # browser checks against localhost; APP_URL=https://da
 - `src/lib/wallet.tsx`: Wallet Standard, one Sui wallet
 - `src/components/`: deposit, withdraw, live protocol and tracking cards
 - `scripts/verify-mainnet.ts`, `scripts/e2e.ts`: the checks above
+- `move/jar/`: the jar package, its tests and its testnet run
+- `teaching/`: the deck generator, speaker notes and renderer
