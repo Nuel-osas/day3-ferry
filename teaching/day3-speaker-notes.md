@@ -1,283 +1,288 @@
-# Day 3 Speaker Notes: Build with Hashi
+# Day 3 Speaker Notes: Hashi on Sui
 
-Keys, Dollars and Bitcoin, Day 3, SuiHub Lagos. Deck: teaching/Day3_Build_with_Hashi.pptx (13 slides, rebuilt with `pnpm slides`). Class app: https://day3-ferry.vercel.app. Repo: https://github.com/Nuel-osas/day3-ferry. Hashi: https://github.com/MystenLabs/hashi.
+Keys, Dollars and Bitcoin, Day 3, SuiHub Lagos. Deck: teaching/Day3_Build_with_Hashi.pptx (13 slides, rebuilt with `pnpm slides`). Demo dApp: https://day3-ferry.vercel.app. Repo: https://github.com/Nuel-osas/day3-ferry. Hashi: https://github.com/MystenLabs/hashi.
 
 ## Before class
 
-- Install Slush in the presenting browser, on mainnet, with a little SUI for gas.
-- Open https://day3-ferry.vercel.app on Mainnet. The live card should read the same number for hBTC minted and BTC held, and "same chain as Hashi".
-- For a live deposit: send at least 30,000 sats (0.001 BTC is comfortable) from your own Bitcoin wallet to your Ferry deposit address at least 80 minutes before the class, record it in Ferry, and follow it. It needs 6 blocks and a 10 minute delay. Set OUR_DEPOSIT to its digest and rerun `pnpm slides` to fill the last row of slide 12.
-- Have a real deposit and withdrawal digest ready to paste: 57SeRZ7xKmmRB6Tm1AgNV3Ngkb6b1VRnvzvfHbvYZP25 and GUHmUvtZPvpEFTvavzM6HsCGab2Fid847UZAjLtTefa5.
-- Students need Node 22+, pnpm, a browser with Slush, and the Sui CLI for the jar. Nobody needs BTC to follow along.
+- Install Slush in the presenting browser, on mainnet.
+- Open https://day3-ferry.vercel.app on Mainnet. The live card should show the same number for hBTC minted and BTC held, and "same chain as Hashi".
+- Have two real digests ready to paste under Track: deposit 57SeRZ7xKmmRB6Tm1AgNV3Ngkb6b1VRnvzvfHbvYZP25 and withdrawal GUHmUvtZPvpEFTvavzM6HsCGab2Fid847UZAjLtTefa5.
+- Students need a phone or laptop with Slush. For the last two hands-on steps: Node 22+, pnpm and the Sui CLI. Nobody needs BTC.
 
 ## Run of show (about two hours)
 
 | Slides | Minutes | What happens |
 |---|---|---|
-| 1 to 4 | 20 | What Hashi is, the parts, mainnet and testnet |
-| 5 to 8 | 30 | The SDK, your address, a deposit, recording from the browser (live in Ferry) |
-| 9 to 10 | 15 | Withdrawals and the tracker (follow real digests) |
-| 11 | 25 | The jar: a Move object with its own Bitcoin address (publish and run on testnet) |
-| 12 to 13 | 10 | Proof, gotchas, take home |
-| hands on | 20 | Everyone connects Slush, finds their Bitcoin address, follows a live deposit, derives their jar's address |
+| 1 to 3 | 15 | What Hashi is, the six parts |
+| 4 to 6 | 25 | Why Hashi, its impact on Sui, what changed since mainnet |
+| 7 to 8 | 20 | What mainnet means for developers, how to position yourself |
+| 9 to 11 | 25 | The demo dApp (live), its code, a contract with its own Bitcoin address |
+| 12 to 13 | 35 | Hands on, take home, questions |
+
+## Sources
+
+- Sui, "A New Era of Bitcoin-Based Finance Begins: Meet Hashi on Sui" (March 2026): https://www.sui.io/blog/new-era-of-bitcoin-based-finance-begins-meet-hashi
+- Sui, "Hashi global coalition expands" (July 2026): https://www.sui.io/blog/hashi-global-coalition-expands
+- Crypto Briefing, mainnet with $500M in capital backing, Anchorage Digital added (8 Oct 2026): https://cryptobriefing.com/hashi-mainnet-to-launch-with-500m-in-capital-backing-adds-anchorage-digital-to-coalition/
+- Sui mainnet: Hashi's DepositConfirmed and WithdrawalRequested events, the UTXO pool and the hBTC supply, read on 11 and 12 Nov 2026.
 
 
-## 01. ferry: Build with Hashi
+## 01. hashi: Bitcoin on Sui, now on mainnet
 
 EXPLAIN
-Day 1 was keys, Day 2 was dollars, today is Bitcoin. Hashi is Mysten's native Bitcoin bridge for Sui, live on mainnet. We do not rebuild it. We use it, the way Day 2 used Circle's CCTP: the SDK, an app on top, and our own Move code that holds hBTC.
+Day 1 was keys, Day 2 was dollars, today is Bitcoin. Hashi went live on Sui mainnet in October. Today is about understanding it and seeing where you fit as a builder, then trying a working dApp on it.
 
 SHOW / DO
-Open https://day3-ferry.vercel.app on the projector, on Mainnet. Point at the live card: hBTC minted and BTC held, the same number. Ask the room to clone https://github.com/Nuel-osas/day3-ferry and run pnpm install while you talk.
+Open https://day3-ferry.vercel.app on the projector, on Mainnet. Point at the live card: hBTC minted and BTC held, the same number.
 
 ASK THE ROOM
 Who here holds BTC? Where is it, and what does it do all day?
 
 EXPECTED ANSWER
-Mostly on an exchange or in a wallet, doing nothing. Using it anywhere else has meant handing it to a custodian or a wrapped-token bridge.
+Mostly on an exchange or in a wallet, doing nothing. Using it anywhere else has meant selling it or handing it to a custodian.
 
 TRANSITION
-The one idea.
+What Hashi is, in one sentence.
 
 REFERENCES
-https://day3-ferry.vercel.app ; https://github.com/Nuel-osas/day3-ferry ; https://github.com/MystenLabs/hashi
+https://day3-ferry.vercel.app ; https://github.com/MystenLabs/hashi
 
 ## 02. Lock on Bitcoin, mint on Sui, burn to release.
 
 EXPLAIN
-Compare with Day 2. CCTP could burn and mint because Circle issues USDC. Nobody issues Bitcoin, so it cannot be burned: it must be locked. The question is who holds the lock. In Hashi it is a threshold of Sui validators (MPC), plus a guardian key, and the rules live in Move on Sui. The supply check is ours: the BTC in Hashi's UTXO pool and the hBTC supply, both read from chain, equal to the satoshi.
+Compare with Day 2. CCTP could burn and mint USDC because Circle issues it. Nobody issues Bitcoin, so it cannot be burned: it has to be locked. The question is who holds the lock. In Hashi it is a threshold of Sui validators signing together (MPC) plus a guardian key, and every rule for when they sign lives in Move on Sui.
 
 SHOW / DO
 Draw it: Bitcoin on the left with a padlock address, Sui on the right with hBTC. Arrow right: deposit, 6 blocks, approve, delay, mint. Arrow left: burn, batch, sign, BTC.
 
 ASK THE ROOM
-If nobody can burn BTC, what stops the committee from spending the locked BTC?
+If nobody can burn BTC, what stops the committee from walking away with it?
 
 EXPECTED ANSWER
-The address needs two signatures: the committee's threshold key and the guardian's. The guardian also rate-limits withdrawals. And every rule for when they sign is Move code on Sui, with delays that leave time to pause.
+The address needs two signatures: the committee's threshold key and the guardian's. The guardian also rate-limits withdrawals, and the delays leave time to pause.
 
 TRANSITION
-The parts of Hashi.
+The parts.
 
 REFERENCES
-https://github.com/MystenLabs/hashi (design/docs/user-flows.mdx) ; scripts/verify-mainnet.ts
+https://github.com/MystenLabs/hashi (design/docs/user-flows.mdx)
 
-## 03. What Hashi is made of
+## 03. The six parts
 
 EXPLAIN
-Six parts. The committee is Sui's own validators running threshold MPC: 105 members on mainnet. The guardian is an independent signer in every deposit address and the rate limiter on the way out. Your address is derived from both keys and your Sui address. hBTC is a normal Sui coin with 8 decimals, minted into your address balance. The delays are the safety: 6 confirmations, then a 10 minute window in which a bad approval can be caught and the service paused. There is no HASHI token: the committee governs by stake.
+The committee is Sui's own validators running threshold MPC: 105 members on mainnet. The guardian is an independent signer in every deposit address and the rate limit on the way out. Every Sui address gets its own Bitcoin address. hBTC is a normal Sui coin. The delays are the safety net. There is no HASHI token: the committee governs by stake.
 
 SHOW / DO
-Ferry's live card: committee 105, guardian can sign 50 BTC now and refills about 50 BTC a day, 6 confirmations then 10 min.
+Ferry's live card: committee 105, guardian can sign 50 BTC now, refills about 50 BTC a day, 6 confirmations then 10 minutes.
 
 ASK THE ROOM
 Why a 10 minute delay after the committee already approved?
 
 EXPECTED ANSWER
-Defence in depth. If a committee signature is ever wrong, operators have a window to pause before anything is minted. Paused, confirm_deposit is rejected and the approval waits.
+If a committee signature is ever wrong, operators have a window to pause before anything is minted.
 
 TRANSITION
-Mainnet and testnet, side by side.
+Why build this at all?
 
 REFERENCES
 https://github.com/MystenLabs/hashi/tree/main/design/docs ; packages/hashi/sources/btc/deposit.move
 
-## 04. Hashi on mainnet and testnet
+## 04. The problem it solves
 
 EXPLAIN
-Hashi is live on mainnet, in a phased rollout. The TypeScript SDK (0.6.29) only has testnet defaults and throws on mainnet unless you pass the package and object ids, which Hashi's own docs list. The minimums are the big difference: 30,000 sats on mainnet, but 1 whole signet BTC on testnet, more than any faucet gives. So today we read everything on both, and real deposits happen on mainnet with real BTC.
+Most Bitcoin does nothing. To use it you either sell it, or hand it to someone who issues a wrapped token, and you trust their reserves. Sui's own framing: synthetic Bitcoin products "lacked transparency on collateral management", so institutions stayed away. Hashi's answer is that the BTC never leaves Bitcoin, the keys are spread across Sui's validators plus a guardian, and the reserve can be checked by anyone: we checked it, and it matches to the satoshi.
 
 SHOW / DO
-Flip Ferry between Mainnet and Testnet. The deposit address changes prefix: bc1p on mainnet, tb1p on Signet, same Sui address.
+In Ferry's live card: hBTC minted equals BTC held. Anyone can run that check from Sui GraphQL; scripts/verify-mainnet.ts does.
 
 ASK THE ROOM
-The worst-case fee on testnet is 0.99999454 BTC. Is testnet expensive?
+Why would someone borrow dollars against their BTC instead of selling it?
 
 EXPECTED ANSWER
-No. The fee budget is defined as the withdrawal minimum minus 546 sats of dust, so it tracks the minimum. It is a ceiling the batch verifier enforces, not a price. The real fee is taken at batch time.
+They keep their Bitcoin and its upside, they do not trigger a sale, and they get spending money now. In a weak currency that is exactly what a BTC holder wants.
 
 TRANSITION
-The SDK in one screen.
+What Hashi does for Sui.
 
 REFERENCES
-https://github.com/MystenLabs/hashi/blob/main/design/docs/reference/networks.mdx ; src/lib/networks.ts
+https://www.sui.io/blog/new-era-of-bitcoin-based-finance-begins-meet-hashi ; scripts/verify-mainnet.ts
 
-## 05. The stack in one screen
+## 05. What Hashi brings to Sui
 
 EXPLAIN
-Everything is under client.hashi after $extend(hashi()). The SDK also has deposit() and requestWithdrawal() that sign for you, but they want a raw Signer, which means a key in the page. In an app, use the tx builders and let the user's wallet sign. call gives you Move-call thunks to put inside your own PTB, which is how Ferry's cancel sends the refund back to the address balance.
+For Sui this is the biggest asset in crypto arriving as a native coin, secured by Sui's own validators. The launch coalition is the signal: more than $500 million in capital commitments and more than 20 launch partners, with Anchorage Digital added at Basecamp. Lending protocols named for day one: AlphaLend, Bluefin, Current, Scallop and Suilend, with NAVI slated for Hashi lending and Fluid joining. Institutions get custody routes (BitGo, Anchorage, Ledger), liquidity (FalconX, Cumberland, Bullish, Erebor), pricing (CF Benchmarks), insurance (Soter) and audits (Certora, OtterSec, Asymptotic). These are announcements; check each protocol for what is live before you build on it.
 
 SHOW / DO
-Open src/lib/hashi.ts (the client) and src/lib/actions.ts (the three PTBs).
+Open https://www.sui.io/blog/hashi-global-coalition-expands and scroll the partner list.
 
 ASK THE ROOM
-Why does the SDK ask for the txid in display order and then reverse it?
+Which of these matters most for a small team in Lagos?
 
 EXPECTED ANSWER
-Explorers and wallets show txids byte-reversed from how Bitcoin hashes them. Hashi stores the internal order, so the committee looks up the right transaction. Pass what mempool.space shows.
+The lending markets. If hBTC is collateral on Suilend, Scallop or NAVI, your app can offer BTC-backed loans without running a lending protocol yourself.
 
 TRANSITION
-Your Bitcoin address.
+What actually changed since mainnet.
 
 REFERENCES
-https://www.npmjs.com/package/@mysten/hashi ; src/lib/hashi.ts ; src/lib/actions.ts
+https://www.sui.io/blog/new-era-of-bitcoin-based-finance-begins-meet-hashi ; https://www.sui.io/blog/hashi-global-coalition-expands ; https://cryptobriefing.com/hashi-mainnet-to-launch-with-500m-in-capital-backing-adds-anchorage-digital-to-coalition/
 
-## 06. Your Bitcoin address
+## 06. What changed since mainnet
 
 EXPLAIN
-The address is Taproot with an unspendable internal key, so every spend goes through a script. Leaf one: 2 of 2, the guardian's key and an MPC child key derived from the committee's master key and your Sui address. Leaf two: the MPC key alone, after a delay, for recovery. Your Sui address is baked in, so the deposit can only ever mint to you. We checked this against mainnet: for all 7 deposits Hashi holds, the address their BTC paid is exactly what the SDK derives from their owner.
+At Basecamp on 8 October Sui said mainnet would open that month, in phases. The chain shows it: the first BTC deposit was recorded and minted on 22 October. Two weeks later, on 2 November, 9.5 BTC came in on one day, including a single 6 BTC deposit. By 12 November, 46 deposits had minted 14.44 BTC of hBTC to 24 different Sui addresses, and 27 withdrawals had gone back to Bitcoin. It is real and growing, and it is early: 24 holders means the app layer is almost empty.
 
 SHOW / DO
-In Ferry, type any Sui address into "look at any Sui address": its Bitcoin address appears. Paste the same address again: same Bitcoin address.
+In Ferry, "Latest on Hashi mainnet": the newest deposits and withdrawals, minutes or hours old. Follow one.
 
 ASK THE ROOM
-Someone sends 10,000 sats to their deposit address. What happens?
+24 holders after three weeks. Is that good or bad news for you?
 
 EXPECTED ANSWER
-Nothing, forever. It is under the 30,000 sat minimum, so it cannot be recorded, and the user's own keys cannot spend from that address. Show the minimum before anyone sends.
+Good. The infrastructure is live and the apps are not built yet. That is the window.
 
 TRANSITION
-A deposit, step by step.
+What this means for you as a developer.
 
 REFERENCES
-https://github.com/MystenLabs/hashi/blob/main/design/docs/address-scheme.mdx ; scripts/verify-mainnet.ts
+https://cryptobriefing.com/hashi-mainnet-to-launch-with-500m-in-capital-backing-adds-anchorage-digital-to-coalition/ ; Hashi events DepositConfirmed and WithdrawalRequested on Sui GraphQL
 
-## 07. BTC in, hBTC out
+## 07. What Hashi mainnet means for you
 
 EXPLAIN
-Two things surprise people. First, Hashi does not scan Bitcoin: nothing happens until someone records the payment on Sui. Second, anyone can record it. The hBTC always goes to the derivation path baked into the address, never to whoever paid the gas, so a service can record for its users: 5 of the 6 mainnet deposits on 11 November were sent by one address on behalf of their owners. After recording, the committee watches Bitcoin, approves at 6 confirmations, and anyone can confirm after the delay, which mints.
+Five things changed for a developer. One: real users with real BTC, on mainnet, from 30,000 sats. Two: an SDK, @mysten/hashi, with readers for everything and transaction builders your users sign in their own wallet (pre-1.0, pin it, and pass the mainnet ids yourself). Three: hBTC is just a Sui coin, so everything you know about Move applies. Four, the one only Sui has: any object can have its own Bitcoin address, so a contract can receive BTC directly. Five: the partners named the products they want: BTC-backed loans, vaults, structured products. Most of the consumer and local products are not on that list.
 
 SHOW / DO
-Follow a real one in Ferry: paste 57SeRZ7xKmmRB6Tm1AgNV3Ngkb6b1VRnvzvfHbvYZP25 under Track. Every step is done, with the approval time.
+Open src/lib/hashi.ts and src/lib/actions.ts in the repo: the whole integration is two small files.
 
 ASK THE ROOM
-Can you record the deposit before it has any confirmations?
+Which of these five could you start on tonight?
 
 EXPECTED ANSWER
-Yes, right after broadcast. The committee waits for 6 confirmations before approving. But a request not confirmed within a day can expire, so do not record a transaction stuck in the mempool for days.
+All of them read-only, on mainnet, with no BTC: addresses, protocol state, live deposits. And the Move part on testnet.
 
 TRANSITION
-Doing it from the browser.
+How to position yourself.
 
 REFERENCES
-packages/hashi/sources/btc/deposit.move ; src/lib/track.ts
+https://www.npmjs.com/package/@mysten/hashi ; https://github.com/MystenLabs/hashi/blob/main/design/docs/reference/networks.mdx
 
-## 08. Record it from the browser
+## 08. How to be early on Hashi
 
 EXPLAIN
-Ferry has no server. It reads Bitcoin from Esplora (blockstream.info, mempool.space), which allows browser requests, and checks first that Esplora's genesis block is the chain Hashi stores; otherwise recording stays off. It lists every output that paid the address. Then one PTB per Bitcoin transaction, three Move calls per output. Before the wallet opens, Ferry simulates the exact bytes: if the output was already used, the simulation says EUtxoAlreadyUsed and nobody is asked to sign a failure.
+Learn it properly first: run Ferry, read the SDK and Hashi's deposit.move and withdraw.move. Build on what is free: mainnet reads and testnet Move cost nothing. Then pick a product the launch partners are not building, for users you understand. In Nigeria people already hold BTC as savings and trade it person to person: escrow for P2P trades, Bitcoin payment links for freelancers and merchants, BTC savings with a lock, and dollar loans against BTC through the lending markets. Plug into the partners rather than competing with them. And ship in public: a dashboard, a tracker, a tool other builders need.
 
 SHOW / DO
-Open the Deposit card on the live site with a wallet connected: the payment list, the Record button, and the PTB line under it.
+Write the room's product ideas on the board under the five moves.
 
 ASK THE ROOM
-Why build the bytes ourselves instead of handing the wallet a half-built transaction?
+What Bitcoin problem do you or people you know have this month?
 
 EXPECTED ANSWER
-So we can simulate exactly what will be signed, and so the wallet signs exactly that. Our test wallet received these bytes, and they simulate on mainnet to DepositRequested.
+Common answers: selling BTC to pay bills, P2P scams, getting paid by foreign clients, saving against the naira. Each is a product.
 
 TRANSITION
-The way back.
+What a Hashi dApp looks like.
 
 REFERENCES
-src/lib/bitcoin.ts ; src/lib/actions.ts ; src/lib/sign.ts
+https://github.com/Nuel-osas/day3-ferry ; https://github.com/MystenLabs/hashi
 
-## 09. The way back to Bitcoin
+## 09. Ferry: what a Hashi dApp looks like
 
 EXPLAIN
-A withdrawal locks hBTC in a request with your Bitcoin address (bc1q or bc1p only). The committee approves it, puts it in a Bitcoin batch, where the hBTC is burned and Hashi's UTXOs are locked, collects the MPC signatures and the guardian's, and confirms once Bitcoin does. Until the batch you can cancel, but only after a 1 hour cooldown. The miner fee comes out of your amount. Its budget is the minimum minus dust, so at the minimum a withdrawal could arrive as 546 sats in the worst case. Show the worst case before the user signs.
+Ferry is the shape every Hashi app shares. Your Bitcoin address with a QR code. The Bitcoin payments to it, found by the app, because Hashi does not scan Bitcoin for you. Recording a payment on Sui, signed in the user's wallet. A tracker for the hour it takes. The way back, with the worst-case fee shown first. And the reserve check. What it must handle for users: the 30,000 sat minimum (below it, BTC is stuck), byte-reversed txids, requests that expire after a day, and the worst-case fee.
 
 SHOW / DO
-Follow GUHmUvtZPvpEFTvavzM6HsCGab2Fid847UZAjLtTefa5 in Ferry: five steps, then the Bitcoin txid and its confirmations.
+On https://day3-ferry.vercel.app: connect Slush, show the deposit address and QR, then follow 57SeRZ7xKmmRB6Tm1AgNV3Ngkb6b1VRnvzvfHbvYZP25 under Track to minted.
 
 ASK THE ROOM
-Why is there a cancel cooldown at all?
+Which screen would you change for a Nigerian user?
 
 EXPECTED ANSWER
-So the committee is not racing users. A request the committee is about to batch should not vanish under it; after an hour, an unbatched request can be taken back.
+Probably the amounts: show naira next to sats, and the minimum in naira before anyone sends.
 
 TRANSITION
-What the user sees while they wait.
+The code behind it.
 
 REFERENCES
-packages/hashi/sources/btc/withdraw.move ; src/components/WithdrawCard.tsx
+https://day3-ferry.vercel.app ; https://github.com/Nuel-osas/day3-ferry
 
-## 10. An hour of waiting is a state, not an error
+## 10. The whole integration in one screen
 
 EXPLAIN
-The longest part is Bitcoin itself: 6 blocks is about an hour. The tracker keeps the user calm and stops them from doing something twice. Ferry follows any digest, not just yours, and reads your own deposits and withdrawals back from the chain's index, so a new device sees everything. The browser only remembers which digests you asked to follow. If a request expires (not confirmed within a day), nothing was minted and the BTC is still at the address: record it again.
+Everything is under client.hashi after $extend(hashi()). On mainnet pass the package and object ids, from Hashi's docs. Use the tx builders, not the signing helpers, so the user's wallet signs and no key sits in your page. Pass txids the way explorers show them; the SDK reverses the bytes for Hashi.
 
 SHOW / DO
-In Ferry, click Follow on a deposit under "Latest on Hashi mainnet": watch the confirmations count, then the approval time, then the delay countdown.
+Open src/lib/hashi.ts, src/lib/actions.ts and src/lib/sign.ts in the repo.
 
 ASK THE ROOM
-The committee approved, the delay is over, but no hBTC yet. Failed?
+Where does the Bitcoin data come from, if the SDK only talks to Sui?
 
 EXPECTED ANSWER
-No. Someone still has to call confirm_deposit, which is what mints; the committee's nodes do it. Show "minting next" and keep polling.
+From any Bitcoin API. Ferry reads Esplora (blockstream.info, mempool.space) from the browser and checks first that it is the same chain Hashi watches.
 
 TRANSITION
-Part 4: hBTC in your own Move code.
+One level down: your own Move code.
 
 REFERENCES
-src/lib/track.ts ; packages/hashi/sources/btc/deposit_queue.move
+src/lib/hashi.ts ; src/lib/actions.ts ; src/lib/sign.ts
 
 ## 11. A contract with its own Bitcoin address
 
 EXPLAIN
-This is what only Hashi on Sui can do. Hashi mints with balance::send_funds(btc, derivation_path), and the derivation path can be an object's ID. So a shared Jar object gets its own Bitcoin address, and BTC sent there becomes hBTC inside the jar, not in anyone's wallet. The jar releases it with withdraw_funds_from_object, only to the cap holder and only after unlock_ms: a Bitcoin savings jar with a time lock enforced on Sui. It is generic over the coin, so we tested the same path on testnet with SUI: funded with send_funds, take before unlock aborted, take after unlock worked.
+This is what only Hashi on Sui can do, and where local products come from. Hashi mints with balance::send_funds(btc, derivation_path), and the derivation path can be an object's ID. So a shared Jar object gets its own Bitcoin address, and BTC sent there becomes hBTC inside the jar. The jar releases it with withdraw_funds_from_object, only to its cap holder and only after unlock_ms. Swap the time lock for "seller confirms the naira arrived" and it is a P2P escrow; for "invoice paid" and it is a payment link.
 
 SHOW / DO
-Run move/jar/README.md on testnet: publish, new, send_funds, take. Then derive the jar's Bitcoin address with generateDepositAddress({ suiAddress: jarId }). Testnet transactions: fund FQLAhzyrsNW62Q27fKdvJJtNhauyDkB326jA4w5eXp6B, take 3StPb2xWLz4FiStur6z5dq3fvnUwwAsFgB1R8GQe2hM8.
+Run move/jar on testnet (move/jar/README.md): publish, new, send_funds, take. Testnet take: 3StPb2xWLz4FiStur6z5dq3fvnUwwAsFgB1R8GQe2hM8.
 
 ASK THE ROOM
 What else could own a Bitcoin address this way?
 
 EXPECTED ANSWER
-Anything with an ID: a DAO treasury, an escrow for a trade, a loan vault that takes BTC as collateral, a payroll pot. The rules for spending live in Move.
+An escrow for a P2P trade, an invoice, a savings pot, a DAO treasury, a loan vault. The rules for spending live in Move.
 
 TRANSITION
-Proof.
+Try it yourself.
 
 REFERENCES
 move/jar/README.md ; packages/hashi/sources/btc/deposit.move (confirm_deposit)
 
-## 12. Proof: real transactions and checks
+## 12. Try it now
 
 EXPLAIN
-pnpm verify reads mainnet: Esplora is Hashi's chain, 7 of 7 held deposits paid the derived address, BTC held equals hBTC supply, a used UTXO aborts. pnpm e2e drives https://day3-ferry.vercel.app with a test wallet carrying a real holder's address that never signs: it keeps the bytes the app hands it, and those bytes simulate on mainnet to DepositRequested and WithdrawalRequested. The deposit and withdrawal rows are other people's real mainnet transactions that Ferry follows.
+Everyone can do the first three on their phone. The last two need a laptop. Nobody needs BTC: we read mainnet and follow other people's real deposits, and the jar runs on testnet with SUI standing in for hBTC.
 
 SHOW / DO
-Open the 0.02 BTC deposit on Suiscan, then its Bitcoin transaction on mempool.space: the output pays the address Ferry shows for that Sui address.
+Walk the room through each step on the projector, then give them 20 minutes. Real digests to follow: deposit 57SeRZ7xKmmRB6Tm1AgNV3Ngkb6b1VRnvzvfHbvYZP25, withdrawal GUHmUvtZPvpEFTvavzM6HsCGab2Fid847UZAjLtTefa5.
 
 ASK THE ROOM
-Why simulate instead of just sending a real transaction in the test?
+Whose Bitcoin address starts with bc1p? Why does everyone's?
 
 EXPECTED ANSWER
-A real deposit needs real BTC and an hour. Simulation runs the same Move code against live mainnet state and costs nothing, so it can run on every change.
+Everyone's does: Hashi deposit addresses are Taproot (P2TR), and Taproot addresses on Bitcoin mainnet start with bc1p.
 
 TRANSITION
-What will bite you.
+Take home.
 
 REFERENCES
-https://github.com/Nuel-osas/day3-ferry#verified-11-november-2026 ; move/jar/README.md
+https://day3-ferry.vercel.app ; https://github.com/Nuel-osas/day3-ferry ; move/jar/README.md
 
-## 13. Six things that will bite you
+## 13. The rails are live. The apps are not built yet.
 
 EXPLAIN
-Two of these cost users money: the minimum (BTC below it is stuck at an address they cannot spend) and the fee at the minimum. The rest cost you time.
+Close on the opportunity: the infrastructure, the partners and the SDK exist; the products for ordinary users, especially local ones, do not.
 
 SHOW / DO
-README "Gotchas" in the repo has the full list with the reasons.
+Leave the repo link and the live app on screen while people ask questions.
 
 ASK THE ROOM
-Which one would you put in red on the deposit screen?
+What will you build first?
 
 EXPECTED ANSWER
-The minimum. Show it next to the address and the QR code, before anyone sends.
+Collect three ideas from the room and say which part of today each one uses.
 
 TRANSITION
-Hands on: everyone opens Ferry, connects Slush, finds their own Bitcoin address, and follows a live deposit.
+Questions.
 
 REFERENCES
-https://github.com/Nuel-osas/day3-ferry README "Gotchas"
+https://github.com/Nuel-osas/day3-ferry ; https://day3-ferry.vercel.app
