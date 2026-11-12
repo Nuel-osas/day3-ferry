@@ -8,7 +8,7 @@
 
 ```sh
 pnpm slides                                           # pptx + speaker notes
-OUR_DEPOSIT=<sui digest> pnpm slides                  # fills the "our own deposit" row on slide 12
+
 PYTHON=/path/to/python-with-pymupdf pnpm slides:pdf   # macOS only: Quick Look + Chrome
 ```
 
@@ -20,4 +20,4 @@ PYTHON=/path/to/python-with-pymupdf pnpm slides:pdf   # macOS only: Quick Look +
 
 ## Day 3 specifics
 
-The deck teaches how to use the Hashi stack: what Hashi is, the SDK, the Ferry app in this repo, and the jar in `move/jar` (a Move object with its own Bitcoin address). Slide 12 lists real transactions (`RUN` at the top of `generate-slides.cjs`); a row whose id is missing prints as "pending", never as done.
+The deck follows the class rhythm: what Hashi is, why it exists and the problem it solves, its impact on Sui, what changed since mainnet (read from Hashi's own events), what it means for developers, how to position yourself, the Ferry demo dApp and its code, a contract with its own Bitcoin address (`move/jar`), and a hands-on demo the room can try without BTC. Sources are listed at the top of the speaker notes.
